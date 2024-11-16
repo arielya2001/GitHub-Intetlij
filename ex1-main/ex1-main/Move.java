@@ -40,5 +40,4 @@ public class Move {
     public Disc disc() { // Required by the GUI
         return getPlacedDisc();
     }
-    "hello world"
 }
