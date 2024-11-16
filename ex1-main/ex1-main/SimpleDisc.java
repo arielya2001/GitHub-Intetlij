@@ -22,6 +22,6 @@ public class SimpleDisc implements Disc {
 
     // Add the copy method
     public SimpleDisc copy() {
-        return new SimpleDisc(this.owner)
+        return new SimpleDisc(this.owner);
     }
 }
