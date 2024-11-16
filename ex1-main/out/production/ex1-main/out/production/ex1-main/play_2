@@ -1,0 +1,210 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class GameLogic implements PlayableLogic {
+    private Disc[][] board;
+    private Player player1;
+    private Player player2;
+    private boolean isFirstPlayerTurn;
+
+
+    public GameLogic() {
+        this.board = new Disc[8][8];
+        this.isFirstPlayerTurn=true;
+    }
+
+    private boolean checkDirection(int row, int col, int rowAdd, int colAdd, Disc disc) {
+        int rowMove = row + rowAdd;
+        int colMove = col + colAdd;
+        boolean found = false;
+
+        while (rowMove >= 0 && colMove >= 0 && rowMove < board.length && colMove < board[0].length) {
+            if (board[rowMove][colMove] == null) {
+                return false;
+            }
+            if (board[rowMove][colMove].getOwner() != (disc.getOwner()))
+            {
+                found = true;
+            }
+               else {
+                   return found;
+                }
+            rowMove += rowAdd;
+            colMove += colAdd;
+            }
+        return false;
+    }
+
+    private Position checkPosition(int row, int col, int rowAdd, int colAdd, Disc disc) {
+        int rowMove = row + rowAdd;
+        int colMove = col + colAdd;
+        boolean foundOpponentDisc = false;
+
+        while (rowMove >= 0 && colMove >= 0 && rowMove < board.length && colMove < board[0].length) {
+            if (board[rowMove][colMove] == null) {
+                return null;
+            }
+            if (board[rowMove][colMove].getOwner() != disc.getOwner()) {
+                foundOpponentDisc = true;
+            } else {
+                if (foundOpponentDisc) {
+                    return new Position(rowMove, colMove);
+                } else {
+                    return null;
+                }
+            }
+            rowMove += rowAdd;
+            colMove += colAdd;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean locate_disc(Position a, Disc disc) {
+        int row = a.getRow();
+        int col = a.getCol();
+        return checkDirection(row, col, 1, 0, disc) ||
+                checkDirection(row, col, 1, 1, disc) ||
+                checkDirection(row, col, 1, -1, disc) ||
+                checkDirection(row, col, 0, 1, disc) ||
+                checkDirection(row, col, 0, -1, disc) ||
+                checkDirection(row, col, -1, -1, disc) ||
+                checkDirection(row, col, -1, 1, disc) ||
+                checkDirection(row, col, -1, 0, disc);
+
+
+    }
+
+    @Override
+    public Disc getDiscAtPosition(Position position) {
+        return board[position.getRow()][position.getCol()];
+    }
+
+    @Override
+    public int getBoardSize() {
+        return board.length;
+    }
+
+    @Override
+    public List<Position> ValidMoves() {
+        List<Position> validMoves = new ArrayList<>();
+        Position step;
+
+        for (int i=0;i<board.length;i++)
+        {
+            for (int j=0;j<board[0].length;j++)
+            {
+                if (board[i][j] == null) {
+                    step = checkPosition(i, j, 1, 0, board[i][j]);
+                    if (step != null && !validMoves.contains(step)) validMoves.add(step);
+
+                    step = checkPosition(i, j, 1, 1, board[i][j]);
+                    if (step != null && !validMoves.contains(step)) validMoves.add(step);
+
+                    step = checkPosition(i, j, 1, -1, board[i][j]);
+                    if (step != null && !validMoves.contains(step)) validMoves.add(step);
+
+                    step = checkPosition(i, j, 0, 1, board[i][j]);
+                    if (step != null && !validMoves.contains(step)) validMoves.add(step);
+
+                    step = checkPosition(i, j, 0, -1, board[i][j]);
+                    if (step != null && !validMoves.contains(step)) validMoves.add(step);
+
+                    step = checkPosition(i, j, -1, -1, board[i][j]);
+                    if (step != null && !validMoves.contains(step)) validMoves.add(step);
+
+                    step = checkPosition(i, j, -1, 1, board[i][j]);
+                    if (step != null && !validMoves.contains(step)) validMoves.add(step);
+
+                    step = checkPosition(i, j, -1, 0, board[i][j]);
+                    if (step != null && !validMoves.contains(step)) validMoves.add(step);
+                }
+            }
+        }
+        return validMoves;
+    }
+
+
+    private void countFlipsInDirection(int row, int col, int rowAdd, int colAdd, List<Position> flippedPositions, Disc disc) {
+        int rowMove = row + rowAdd;
+        int colMove = col + colAdd;
+        List<Position> tempFlips = new ArrayList<>();
+        while (rowMove >= 0 && colMove >= 0 && rowMove < board.length && colMove < board[0].length) {
+            Disc currentDisc = board[rowMove][colMove];
+            Position currentPosition = new Position(rowMove, colMove);
+
+            if (currentDisc == null) {
+                return;
+            }
+            if (currentDisc.getOwner() != disc.getOwner()) {
+                tempFlips.add(currentPosition);
+            } else {
+                for (Position pos : tempFlips) {
+                    if (!flippedPositions.contains(pos)) {
+                        flippedPositions.add(pos);
+                    }
+                }
+                return;
+            }
+            rowMove += rowAdd;
+            colMove += colAdd;
+        }
+    }
+
+
+    @Override
+    public int countFlips(Position a) {
+        List<Position> flippedPositions = new ArrayList<>();
+        int row = a.getRow();
+        int col = a.getCol();
+        countFlipsInDirection(row, col, 1, 0, flippedPositions, board[row][col]);  // למטה
+        countFlipsInDirection(row, col, 1, 1, flippedPositions, board[row][col]);  // למטה-ימינה
+        countFlipsInDirection(row, col, 1, -1, flippedPositions, board[row][col]); // למטה-שמאלה
+        countFlipsInDirection(row, col, 0, 1, flippedPositions, board[row][col]);  // ימינה
+        countFlipsInDirection(row, col, 0, -1, flippedPositions, board[row][col]); // שמאלה
+        countFlipsInDirection(row, col, -1, 0, flippedPositions, board[row][col]); // למעלה
+        countFlipsInDirection(row, col, -1, -1, flippedPositions, board[row][col]);// למעלה-שמאלה
+        countFlipsInDirection(row, col, -1, 1, flippedPositions, board[row][col]); // למעלה-ימינה
+
+
+        return flippedPositions.size();
+    }
+
+
+    @Override
+    public Player getFirstPlayer() {
+        return player1;
+    }
+
+    @Override
+    public Player getSecondPlayer() {
+        return player2;
+    }
+
+    @Override
+    public void setPlayers(Player player1, Player player2)
+    {
+        this.player1=player1;
+        this.player2=player2;
+    }
+
+    @Override
+    public boolean isFirstPlayerTurn() {
+        return isFirstPlayerTurn;
+    }
+
+    @Override
+    public boolean isGameFinished() {
+        return false;
+    }
+
+    @Override
+    public void reset() {
+
+    }
+
+    @Override
+    public void undoLastMove() {
+
+    }
+}
