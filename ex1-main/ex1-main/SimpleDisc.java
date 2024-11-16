@@ -24,4 +24,5 @@ public class SimpleDisc implements Disc {
     public SimpleDisc copy() {
         return new SimpleDisc(this.owner);
     }
+    "hello"
 }
