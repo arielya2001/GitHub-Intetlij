@@ -380,7 +380,7 @@ public class GameLogic implements PlayableLogic {
     @Override
     public void undoLastMove() {
         // Check if both players are human
-        if (!(player1 instanceof HumanPlayer && player2 instanceof HumanPlayer)) {
+        if (!(player1.isHuman() && player2.isHuman())) {
             System.out.println("Undo is only available in Human vs. Human mode!");
             return;
         }
