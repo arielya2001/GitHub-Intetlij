@@ -108,7 +108,33 @@ public class GameLogic implements PlayableLogic {
             }
         }
     }
-
+    private void winnerCount() {
+        int countPlayer1 = 0;
+        int countPlayer2 = 0;
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                Disc disc = board[row][col];
+                if (disc != null) {
+                    if (disc.getOwner() == player1) {
+                        countPlayer1++;
+                    } else if (disc.getOwner() == player2) {
+                        countPlayer2++;
+                    }
+                }
+            }
+        }
+        int totalDiscs = countPlayer1 + countPlayer2;
+        if (countPlayer1 > countPlayer2) {
+            player1.addWin();
+            System.out.println("Player 1 wins with " + countPlayer1 + " discs! Player 2 had " + countPlayer2 + " discs.");
+        } else if (countPlayer2 > countPlayer1) {
+            player2.addWin();
+            System.out.println("Player 2 wins with " + countPlayer2 + " discs! Player 1 had " + countPlayer1 + " discs.");
+        } else {
+            System.out.println("The game is a tie! Both players have " + countPlayer1 + " discs.");
+        }
+        System.out.println("Total discs on the board: " + totalDiscs);
+    }
 
 
 
@@ -319,11 +345,25 @@ public class GameLogic implements PlayableLogic {
 
     @Override
     public boolean isGameFinished() {
-        if (!ValidMoves().isEmpty()) return false;
-        switchTurn();
-        boolean otherPlayerHasMoves = !ValidMoves().isEmpty();
-        switchTurn();
-        return !otherPlayerHasMoves;
+        boolean isBoardFull = true;
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                if (board[row][col] == null) {
+                    isBoardFull = false;
+                    break;
+                }
+            }
+            if (!isBoardFull) break;
+        }
+        if (isBoardFull) {
+            winnerCount();
+            return true;
+        }
+        if (ValidMoves().isEmpty()) {
+            winnerCount();
+            return true;
+        }
+        return false;
     }
 
     @Override
