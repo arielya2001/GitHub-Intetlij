@@ -377,14 +377,23 @@ public class GameLogic implements PlayableLogic {
         initializeBoard();
     }
 
+    @Override
     public void undoLastMove() {
+        // Check if both players are human
+        if (!(player1 instanceof HumanPlayer && player2 instanceof HumanPlayer)) {
+            System.out.println("Undo is only available in Human vs. Human mode!");
+            return;
+        }
+
         if (!moveHistory.isEmpty()) {
             Move lastMove = moveHistory.pop();
             // Restore the board to the saved snapshot if available
             if (lastMove.getBoardSnapshot() != null) {
                 restoreBoardFromSnapshot(lastMove.getBoardSnapshot());
             }
+
             Disc placedDisc = lastMove.getPlacedDisc();
+            // Restore player's resources
             if (placedDisc instanceof BombDisc) {
                 if (placedDisc.getOwner() == player1) {
                     player1.reduce_bomb();
@@ -398,9 +407,12 @@ public class GameLogic implements PlayableLogic {
                     player2.reduce_unflippedable();
                 }
             }
+
+            // Switch back to the player who made the undone move
             switchTurn();
         }
     }
+
     private void restoreBoardFromSnapshot(Disc[][] snapshot) {
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
