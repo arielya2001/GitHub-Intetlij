@@ -379,36 +379,9 @@ public class GameLogic implements PlayableLogic {
 
     @Override
     public void undoLastMove() {
-        // Check if both players are human
-        if (!(player1.isHuman() && player2.isHuman())) {
-            System.out.println("Undo is only available in Human vs. Human mode!");
-            return;
-        }
-
         if (!moveHistory.isEmpty()) {
             Move lastMove = moveHistory.pop();
-            // Restore the board to the saved snapshot if available
-            if (lastMove.getBoardSnapshot() != null) {
-                restoreBoardFromSnapshot(lastMove.getBoardSnapshot());
-            }
-
-            Disc placedDisc = lastMove.getPlacedDisc();
-            // Restore player's resources
-            if (placedDisc instanceof BombDisc) {
-                if (placedDisc.getOwner() == player1) {
-                    player1.reduce_bomb();
-                } else {
-                    player2.reduce_bomb();
-                }
-            } else if (placedDisc instanceof UnflippableDisc) {
-                if (placedDisc.getOwner() == player1) {
-                    player1.reduce_unflippedable();
-                } else {
-                    player2.reduce_unflippedable();
-                }
-            }
-
-            // Switch back to the player who made the undone move
+            restoreBoardFromSnapshot(lastMove.getBoardSnapshot());
             switchTurn();
         }
     }
